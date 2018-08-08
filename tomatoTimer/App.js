@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Vibration} from 'react-native';
 import {Constants} from 'expo';
 
 const width = Dimensions.get('window').width; //full width
@@ -31,8 +31,10 @@ class CountDownTimer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      count1: 1500,
+      count1: 10,
       counter1: null,
+      count2: 300,
+      counter2: null,
       currentCounter: 1,
     }
   }
@@ -40,6 +42,10 @@ class CountDownTimer extends React.Component {
   start() {
     if (this.state.currentCounter === 1) {
       this.state.counter1 = setInterval(() => {
+        if (this.state.count1 <= 1) {
+          Vibration.vibrate([500, 500, 500]);
+          clearInterval(this.state.counter1)
+        }
         this.setState(prevState => ({count1: prevState.count1 - 1}))
       }, 1000)
     }
@@ -61,6 +67,11 @@ class CountDownTimer extends React.Component {
 
   reset() {
     // reset timer
+    if (this.state.currentCounter === 1) {
+      this.setState({
+        count1: 10
+      })
+    }
   }
 
   setCurrentCounter(current) {
