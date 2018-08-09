@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, StyleSheet, Text, View, TouchableOpacity, Dimensions, Vibration, Image} from 'react-native';
+import { Modal, StyleSheet, Text, TextInput, View, TouchableOpacity, Dimensions, Vibration, Image} from 'react-native';
 import {Constants} from 'expo';
 
 const width = Dimensions.get('window').width; //full width
@@ -36,16 +36,21 @@ class CountDownTimer extends React.Component {
     super(props);
     this.state = {
       modalVisible: false,
-      count1: 10,
+      count1: 1500,
       counter1: null,
       count2: 300,
       counter2: null,
+      count3: 600,
+      counter3: null,
       currentCounter: 1,
+      custom1: 25,
+      custom2: 5,
+      custom3: 10,
     }
   }
 
   start() {
-    if (this.state.currentCounter === 1) {
+    if (this.state.currentCounter === 1 && !this.state.counter1) {
       this.state.counter1 = setInterval(() => {
         if (this.state.count1 <= 1) {
           Vibration.vibrate([500, 500, 500]);
@@ -56,25 +61,70 @@ class CountDownTimer extends React.Component {
     }
 
     // TODO: set short break timer
+    if(this.state.currentCounter === 2 && !this.state.counter2){
+      this.state.counter2 = setInterval(() => {
+        if (this.state.count2 <= 2) {
+          Vibration.vibrate([500, 500, 500]);
+          clearInterval(this.state.counter2)
+        }
+        this.setState(prevState => ({ count2: prevState.count2 - 1}))
+      }, 1000)
+    }
 
     // TODO: set long break timer
+    if (this.state.currentCounter === 3 && !this.state.counter3) {
+      this.state.counter3 = setInterval(() => {
+        if (this.state.count3 <= 1) {
+          Vibration.vibrate([500, 500, 500]);
+          clearInterval(this.state.counter3)
+        }
+        this.setState(prevState => ({count3: prevState.count3 - 1}))
+      }, 1000)
+    }
   }
 
   stop() {
     if (this.state.currentCounter === 1) {
       clearInterval(this.state.counter1)
+      this.setState({
+        counter1: null
+      })
     }
 
     // TODO: stop short break timer
+    if(this.state.currentCounter === 2){
+      clearInterval(this.state.counter2)
+      this.setState({
+        counter2: null
+      })
+    }
 
     // TODO: stop long break timer
+    if (this.state.currentCounter === 3) {
+      clearInterval(this.state.counter3)
+      this.setState({
+        counter3: null
+      })
+    }
   }
 
   reset() {
     // reset timer
     if (this.state.currentCounter === 1) {
       this.setState({
-        count1: 10
+        count1: this.state.custom1 * 60
+      })
+    }
+
+    if (this.state.currentCounter === 2) {
+      this.setState({
+        count1: this.state.custom2 * 60
+      })
+    }
+
+    if (this.state.currentCounter === 3) {
+      this.setState({
+        count3: this.state.custom3 * 60
       })
     }
   }
@@ -89,14 +139,47 @@ class CountDownTimer extends React.Component {
     this.setState({modalVisible: visible});
   }
 
+  setCustomTime() {
+    clearInterval(this.state.counter1)
+    clearInterval(this.state.counter2)
+    clearInterval(this.state.counter3)
+
+    this.setState({
+      count1: this.state.custom1 * 60,
+      count2: this.state.custom2 * 60,
+      count3: this.state.custom3 * 60,
+      custom1: this.state.custom1,
+      custom2: this.state.custom2,
+      custom3: this.state.custom3,
+      modalVisible: false
+    })
+  }
+
+  handleCustom1 = custom1 => {
+    this.setState({custom1});
+  }
+
+  handleCustom2 = custom2 => {
+    this.setState({custom2});
+  }
+
+  handleCustom3 = custom3 => {
+    this.setState({custom3});
+  }
+
   render() {
     let count;
     if (this.state.currentCounter === 1) {
       count = this.state.count1;
     }
     // TODO: set short break count
-
+    if(this.state.currentCounter === 2){
+      count = this.state.count2;
+    }
     // TODO: set long break count
+    if (this.state.currentCounter === 3) {
+      count = this.state.count3;
+    }
     return (
       <View style={styles.container}>
         <View style={styles.content}>
@@ -129,11 +212,35 @@ class CountDownTimer extends React.Component {
           >
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Enter Custom Timer</Text>
-            <View>
-              <Text>Pomodoro</Text>
-
+            <View style={styles.inputContanier}>
+              <Text style={styles.inputTtl}>Pomodoro</Text>
+              <TextInput 
+                keyboardType="numeric"
+                style={styles.input} 
+                onChangeText={this.handleCustom1} 
+                value={this.state.custom1}
+              />
             </View>
-            <TimerButton buttonStyle={styles.customBtn} buttonText={'Save'} onPress={this.setModalVisible.bind(this, false)} />
+
+            <View style={styles.inputContanier}>
+              <Text style={styles.inputTtl}>Short Break</Text>
+              <TextInput 
+                keyboardType="numeric"
+                style={styles.input}
+                onChangeText={this.handleCustom2} 
+                value={this.state.custom2} />
+            </View>
+
+            <View style={styles.inputContanier}>
+              <Text style={styles.inputTtl}>Long Break</Text>
+              <TextInput 
+                keyboardType="numeric"
+                style={styles.input}
+                onChangeText={this.handleCustom3} 
+                value={this.state.custom3} />
+            </View>
+
+            <TimerButton buttonStyle={styles.customBtn} buttonText={'Save'} onPress={this.setCustomTime.bind(this)} />
           </View>
         </Modal>
       </View>
@@ -205,14 +312,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modal: {
+    flex: 1,
     paddingTop: Constants.statusBarHeight,
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#029118'
   },
   modalTitle: {
+    color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
     paddingTop: 50,
+    marginBottom: 20,
+  },
+  inputContanier: {
+    width: width,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  inputTtl: {
+    fontSize: 18,
+    marginBottom: 5,
+    color: '#fff'
+  },
+  input: {
+    backgroundColor: '#fff',
+    fontSize: 20,
+    padding: 5,
   }
 });
