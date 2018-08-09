@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Vibration} from 'react-native';
+import { Modal, StyleSheet, Text, View, TouchableOpacity, Dimensions, Vibration, Image} from 'react-native';
 import {Constants} from 'expo';
 
 const width = Dimensions.get('window').width; //full width
+const ratio = (width - 140) / 483;
 
 class TimerButton extends React.Component {
   render() {
@@ -16,8 +17,11 @@ class TimerButton extends React.Component {
 
 class Counter extends React.Component {
   render() {
-    const min = Math.floor(this.props.count/60);
+    let min = Math.floor(this.props.count/60);
     let sec = this.props.count % 60;
+    if (min.toString().length == 1) {
+      min = '0' + min.toString()
+    }
     if (sec.toString().length == 1) {
       sec = '0' + sec.toString()
     }
@@ -31,6 +35,7 @@ class CountDownTimer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      modalVisible: false,
       count1: 10,
       counter1: null,
       count2: 300,
@@ -80,6 +85,10 @@ class CountDownTimer extends React.Component {
     })
   }
 
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
+  }
+
   render() {
     let count;
     if (this.state.currentCounter === 1) {
@@ -91,18 +100,42 @@ class CountDownTimer extends React.Component {
     return (
       <View style={styles.container}>
         <View style={styles.content}>
+          <Text style={styles.counter}>Pomodoro Timer</Text>
           <View style={styles.buttons}>
             <TimerButton buttonStyle={styles.buttonBg} buttonText={'Pomodoro'} onPress={this.setCurrentCounter.bind(this, 1)} />
             <TimerButton buttonStyle={[styles.buttonBg, styles.buttonMg]} buttonText={'Short Break'} onPress={this.setCurrentCounter.bind(this, 2)} />
             <TimerButton buttonStyle={styles.buttonBg} buttonText={'Long Break'} onPress={this.setCurrentCounter.bind(this, 3)} />
           </View>
+          <Image
+            source={require('./tomato.png')}
+            resizeMode={'contain'}
+            style={styles.image}
+          />
           <Counter count={count} />
           <View style={styles.buttons}>
             <TimerButton buttonStyle={styles.buttonBg} buttonText={'Start'} onPress={this.start.bind(this)} />
             <TimerButton buttonStyle={[styles.buttonBg, styles.buttonMg]} buttonText={'Stop'} onPress={this.stop.bind(this)} />
             <TimerButton buttonStyle={styles.buttonBg} buttonText={'Reset'} onPress={this.reset.bind(this)} />
           </View>
+          <TimerButton buttonStyle={styles.customBtn} buttonText={'Custom Timer'} onPress={this.setModalVisible.bind(this, true)} />
         </View>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            alert('Modal has been closed.');
+          }}
+          >
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>Enter Custom Timer</Text>
+            <View>
+              <Text>Pomodoro</Text>
+
+            </View>
+            <TimerButton buttonStyle={styles.customBtn} buttonText={'Save'} onPress={this.setModalVisible.bind(this, false)} />
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -135,7 +168,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     width: width,
-    marginBottom: 50,
+    marginBottom: 30,
   },
   button: {
     color: '#fc5555',
@@ -152,9 +185,34 @@ const styles = StyleSheet.create({
   counter: {
     fontSize: 40,
     fontWeight: 'bold',
-    marginBottom: 50,
+    marginBottom: 30,
   },
   buttonMg: {
     marginHorizontal: 0,
+  },
+  image: {
+    width: width - 140,
+    height: 422 * ratio,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  customBtn: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    alignItems: 'center',
+  },
+  modal: {
+    paddingTop: Constants.statusBarHeight,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    paddingTop: 50,
   }
 });
