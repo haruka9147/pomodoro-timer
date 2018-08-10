@@ -43,9 +43,9 @@ class CountDownTimer extends React.Component {
       count3: 600,
       counter3: null,
       currentCounter: 1,
-      custom1: 25,
-      custom2: 5,
-      custom3: 10,
+      custom1: '25',
+      custom2: '5',
+      custom3: '10',
     }
   }
 
@@ -112,18 +112,21 @@ class CountDownTimer extends React.Component {
     // reset timer
     if (this.state.currentCounter === 1) {
       this.setState({
+        counter1: null,
         count1: this.state.custom1 * 60
       })
     }
 
     if (this.state.currentCounter === 2) {
       this.setState({
-        count1: this.state.custom2 * 60
+        counter2: null,
+        count2: this.state.custom2 * 60
       })
     }
 
     if (this.state.currentCounter === 3) {
       this.setState({
+        counter3: null,
         count3: this.state.custom3 * 60
       })
     }
